@@ -132,12 +132,17 @@ module Rpush
         end
 
         def do_post
-          body = notification_to_xml
+          data = @notification.data
+          body = if data.nil?
+                   ""
+                 else
+                   data.to_json
+                 end
           uri = URI.parse(@notification.uri)
           post = Net::HTTP::Post.new(uri.request_uri,
                                      "Content-Length" => body.length.to_s,
-                                     "Content-Type" => "text/xml",
-                                     "X-WNS-Type" => "wns/toast",
+                                     "Content-Type" => "application/octet-stream",
+                                     "X-WNS-Type" => "wns/raw",
                                      "X-WNS-RequestForStatus" => "true",
                                      "Authorization" => "Bearer #{access_token}")
           post.body = body
